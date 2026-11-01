@@ -29,6 +29,12 @@ lcd207 --info [-v]
 
 The image stays on the panel after the program exits. No background process is needed.
 
+### GUI
+
+`lcd207-gui.exe` is a small window you can drop an image onto (or click to browse). It sends the image to the panel straight away and shows a preview of exactly what the panel displays.
+
+The **Rotation** (Auto, 0°, 90°, 180°, 270°) and **Fit** (Cover, Contain, Stretch) dropdowns work like the CLI options. Changing either one re-sends the current image.
+
 ## Build
 
 ```
@@ -36,7 +42,7 @@ dotnet test
 dotnet publish src/Lcd207 -c Release -o publish -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 ```
 
-This produces `publish/lcd207.exe`.
+This produces `publish/lcd207.exe`. For the GUI, publish `src/Lcd207.Gui` the same way to get `lcd207-gui.exe`.
 
 ## How it works
 
@@ -61,6 +67,7 @@ The panel acknowledges on endpoint `0x81`.
 | `src/Lcd207/PacketBuilder.cs` | Encrypted command headers |
 | `src/Lcd207/Lcd207Panel.cs` | Init sequence, image push, reply handling |
 | `src/Lcd207/ImageEncoder.cs` | Rotate, scale, and JPEG-encode to panel size |
+| `src/Lcd207.Gui/` | WPF drag-and-drop front end |
 
 Tested on firmware `lianli207_0003_0009`.
 
