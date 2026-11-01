@@ -1,0 +1,60 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
+
+  <Package Name="LanCool LCD"
+           Manufacturer="A3V01D"
+           Version="$(ProductVersion)"
+           UpgradeCode="4EE32A72-D05A-4721-A425-D2AF83F26D74"
+           Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon.ico" SourceFile="..\src\Lcd207.Gui\app.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    <!-- Advertised shortcuts need an icon whose extension matches the target (ICE50); the exe embeds app.ico. -->
+    <Icon Id="GuiIcon.exe" SourceFile="$(PayloadDir)lcd207-gui.exe" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/intrusdave/lancool207-lcd-windows" />
+
+    <!-- Require the .NET 10 Desktop Runtime (x64). Property is "0" when a compatible runtime exists. -->
+    <netfx:DotNetCompatibilityCheck Property="DOTNETDESKTOP10" RuntimeType="desktop" Platform="x64"
+                                    Version="10.0.0" RollForward="latestMajor" />
+    <Launch Condition="Installed OR DOTNETDESKTOP10 = &quot;0&quot;"
+            Message="LanCool LCD requires the .NET 10 Desktop Runtime (x64). Download it from https://dotnet.microsoft.com/download/dotnet/10.0 and run this installer again." />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="ManufacturerFolder" Name="A3V01D">
+        <Directory Id="INSTALLFOLDER" Name="LanCoolLCD" />
+      </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component Id="GuiExe">
+        <File Id="GuiExe" Source="$(PayloadDir)lcd207-gui.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="LanCool LCD"
+                    Description="Show images on the LANCOOL 207 Digital LCD"
+                    WorkingDirectory="INSTALLFOLDER" Icon="GuiIcon.exe" Advertise="yes" />
+        </File>
+      </Component>
+
+      <Files Include="$(PayloadDir)**">
+        <Exclude Files="$(PayloadDir)lcd207-gui.exe" />
+        <Exclude Files="$(PayloadDir)**\*.pdb" />
+      </Files>
+
+      <!-- Put the lcd207 CLI on the system PATH -->
+      <Component Id="PathEntry">
+        <Environment Id="PathEnv" Name="PATH" Value="[INSTALLFOLDER]" Part="last" Action="set" System="yes" Permanent="no" />
+        <RegistryValue Root="HKLM" Key="Software\A3V01D\LanCoolLCD" Name="InstallDir" Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <Feature Id="Main" Title="LanCool LCD">
+      <ComponentGroupRef Id="AppFiles" />
+    </Feature>
+
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+  </Package>
+</Wix>

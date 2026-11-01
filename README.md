@@ -44,6 +44,22 @@ dotnet publish src/Lcd207 -c Release -o publish -p:PublishSingleFile=true -p:Inc
 
 This produces `publish/lcd207.exe`. For the GUI, publish `src/Lcd207.Gui` the same way to get `lcd207-gui.exe`.
 
+### Installer
+
+```
+dotnet build installer -c Release [-p:ProductVersion=1.2.3]
+```
+
+This produces `installer/bin/Release/LanCoolLCD-Setup.msi`. It's built with [WiX Toolset](https://wixtoolset.org/) 6, which is pulled from NuGet, so there's nothing to install.
+
+The MSI:
+- installs the GUI and CLI to `C:\Program Files\A3V01D\LanCoolLCD\` (you can change the location),
+- adds a **LanCool LCD** Start Menu shortcut,
+- puts `lcd207` on the system PATH,
+- requires the .NET 10 Desktop Runtime (x64).
+
+Installing a newer version replaces the old one.
+
 ## How it works
 
 Every command is a 512-byte header. The header is a 500-byte plaintext block containing:
@@ -68,6 +84,7 @@ The panel acknowledges on endpoint `0x81`.
 | `src/Lcd207/Lcd207Panel.cs` | Init sequence, image push, reply handling |
 | `src/Lcd207/ImageEncoder.cs` | Rotate, scale, and JPEG-encode to panel size |
 | `src/Lcd207.Gui/` | WPF drag-and-drop front end |
+| `installer/` | WiX MSI installer |
 
 Tested on firmware `lianli207_0003_0009`.
 

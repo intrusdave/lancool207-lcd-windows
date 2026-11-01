@@ -1,0 +1,29 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+
+  <!--
+    Builds bin\<Configuration>\LanCoolLCD-Setup.msi.
+      dotnet build installer -c Release
+    The GUI (and the lcd207 CLI it references) is published framework-dependent
+    into obj\payload first, then every file there except .pdb is packaged.
+  -->
+
+  <PropertyGroup>
+    <OutputName>LanCoolLCD-Setup</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <PayloadDir>$(MSBuildThisFileDirectory)obj\payload\</PayloadDir>
+    <DefineConstants>ProductVersion=$(ProductVersion);PayloadDir=$(PayloadDir)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="6.0.2" />
+    <PackageReference Include="WixToolset.Netfx.wixext" Version="6.0.2" />
+  </ItemGroup>
+
+  <Target Name="PublishPayload" BeforeTargets="BeforeBuild">
+    <RemoveDir Directories="$(PayloadDir)" />
+    <MSBuild Projects="..\src\Lcd207.Gui\Lcd207.Gui.csproj" Targets="Restore;Publish"
+             Properties="Configuration=Release;PublishDir=$(PayloadDir);Version=$(ProductVersion)" />
+  </Target>
+
+</Project>
